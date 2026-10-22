@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+!.env.example
+
+# datos locales (PGlite + archivos subidos)
+/.data
+
+# generados por npm run seed
+/samples
