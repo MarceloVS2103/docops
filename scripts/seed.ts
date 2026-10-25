@@ -215,7 +215,7 @@ async function crearEmpresa(q: Queryable, def: EmpresaDemo, hash: string): Promi
       const revision = esc === "revision";
       const f = fechas(t, esc === "revision" ? "vigente" : esc);
       const pdf = await documentoPdf(t, nombre, dni, f.emision, f.impresa);
-      const ruta = await guardarArchivo(empresaId, pdf, "application/pdf");
+      const ruta = await guardarArchivo(empresaId, pdf, "application/pdf", q);
 
       let motivo: string | null = null;
       let ia: Record<string, unknown> = {

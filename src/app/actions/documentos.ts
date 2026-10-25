@@ -9,7 +9,9 @@ import { extraerDatosDocumento, MIME_SOPORTADOS } from "@/lib/ia/extraer";
 import { guardarArchivo, leerArchivo } from "@/lib/storage";
 import type { EstadoAccion } from "./tipos";
 
-const MAX_BYTES = 10 * 1024 * 1024;
+// Vercel corta los requests de más de 4,5 MB; en otros entornos se permiten 10 MB.
+const MAX_MB = process.env.VERCEL ? 4 : 10;
+const MAX_BYTES = MAX_MB * 1024 * 1024;
 
 interface Contexto {
   operario: { id: string; nombre_completo: string; dni: string };
@@ -78,7 +80,7 @@ export async function subirDocumento(_prev: EstadoAccion, form: FormData): Promi
   const tipoId = String(form.get("tipo_documento_id") ?? "");
   const archivo = form.get("archivo");
   if (!(archivo instanceof File) || archivo.size === 0) return { error: "Selecciona un archivo." };
-  if (archivo.size > MAX_BYTES) return { error: "El archivo no debe pasar de 10 MB." };
+  if (archivo.size > MAX_BYTES) return { error: `El archivo no debe pasar de ${MAX_MB} MB.` };
   const mime = archivo.type;
   if (!MIME_SOPORTADOS.includes(mime as (typeof MIME_SOPORTADOS)[number])) {
     return { error: "Formato no soportado. Sube un PDF, JPG, PNG o WEBP." };
