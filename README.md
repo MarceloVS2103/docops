@@ -69,8 +69,8 @@ Costo aproximado: una llamada por documento subido (unos pocos miles de tokens d
 | `ANTHROPIC_API_KEY` | Para la IA | Lectura automática de documentos |
 | `ANTHROPIC_MODEL` | No | Modelo de Claude (por defecto `claude-opus-5-5`) |
 | `SESSION_SECRET` | **En producción** | Firma de la cookie de sesión (≥ 32 caracteres aleatorios) |
-| `DATABASE_URL` | En producción | Postgres (Supabase). Vacío = Postgres embebido local en `./.data/pgdata` |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | En producción | Archivos en Supabase Storage. Vacío = disco local `./.data/uploads` |
+| `DATABASE_URL` | En producción | Postgres (Neon o Supabase). Vacío = Postgres embebido local en `./.data/pgdata` |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | No | Archivos en Supabase Storage. Sin ellas: tabla `archivos` si hay `DATABASE_URL`, o disco local `./.data/uploads` |
 
 ## Scripts
 
@@ -103,13 +103,30 @@ src/
 scripts/seed.ts          datos demo
 ```
 
-## Deploy (Vercel + Supabase)
+## Deploy
 
-No probado aún de punta a punta; estos son los pasos previstos:
+### Actual: Vercel + Neon (demo pública)
 
-1. Crea un proyecto en Supabase. Copia el *connection string* (Session pooler, puerto 5432) en `DATABASE_URL` y ejecuta `npm run db:migrate` desde tu máquina.
-2. En Supabase Storage crea un bucket **privado** `documentos`. Copia `SUPABASE_URL` y la `service_role` key.
-3. En Vercel importa el repo y define `DATABASE_URL`, `SESSION_SECRET`, `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` y `SUPABASE_STORAGE_BUCKET`.
-4. Opcional: `npm run seed` con `DATABASE_URL` apuntando a Supabase carga las empresas demo allí.
+Publicado en <https://docops-phi.vercel.app> (proyecto `docops` en Vercel). La base es Neon (Postgres, región São Paulo), conectada desde la pestaña *Storage* del proyecto, que inyecta `DATABASE_URL`. Los archivos se guardan en la misma base (tabla `archivos`) porque no hay Supabase Storage configurado.
+
+Para volver a desplegar y recargar los datos demo en producción:
+
+```bash
+vercel env pull .env.vercel --environment=production --yes
+```
+
+```bash
+DATABASE_URL="$(grep '^DATABASE_URL_UNPOOLED=' .env.vercel | cut -d= -f2- | tr -d '"')" npx tsx --env-file=.env.vercel scripts/seed.ts
+```
+
+```bash
+vercel deploy --prod
+```
+
+`.env.vercel` contiene credenciales: está ignorado por git, no lo compartas. Las migraciones corren solas al arrancar la app (o con `scripts/migrate.ts` usando el mismo prefijo). Para activar la IA en producción, agrega `ANTHROPIC_API_KEY` en *Settings → Environment Variables* y vuelve a desplegar.
+
+### Alternativa: Supabase
+
+Con `DATABASE_URL` de Supabase (Transaction pooler, puerto 6543) y `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + un bucket privado `documentos`, los archivos van a Supabase Storage. Esta ruta no está probada.
 
 Las decisiones y supuestos tomados durante la construcción están en [ASSUMPTIONS.md](ASSUMPTIONS.md).
