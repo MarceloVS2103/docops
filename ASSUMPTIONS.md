@@ -45,7 +45,7 @@ Decisiones tomadas sin preguntar para no frenar la construcción. Cualquiera se 
 
 ## IA
 
-- Dos proveedores intercambiables con el mismo esquema e instrucciones: **Gemini** (`gemini-3.8-flash`, elegido por el equipo para las pruebas con participantes por su plan gratuito) y **Claude** (`claude-opus-5-5`, con `effort: "medium"` y *fallback* de servidor). `IA_PROVEEDOR` fuerza uno; sin ella se usa el que tenga clave, Gemini primero.
+- Dos proveedores intercambiables con el mismo esquema e instrucciones: **Gemini** (`gemini-3.6-flash` con `gemini-3.5-flash-lite` de respaldo, elegido por el equipo para las pruebas con participantes por su plan gratuito; `gemini-3.8-flash` respondía saturado en el plan gratuito durante las pruebas) y **Claude** (`claude-opus-5-5`, con `effort: "medium"` y *fallback* de servidor). `IA_PROVEEDOR` fuerza uno; sin ella se usa el que tenga clave, Gemini primero.
 - Plan gratuito de Gemini: Google puede usar el contenido para mejorar sus productos y hay topes de uso por minuto. Aceptable con los PDFs ficticios de la encuesta; **no** para documentos reales de clientes. Si se pasa el tope, el documento queda en revisión manual con un aviso de reintento.
 - La extracción corre **sincrónica** durante la subida (unos segundos, con el indicador "Leyendo con IA…"). Para cargas masivas convendría una cola o una API por lotes (v2).
 - Las reglas de `evaluar.ts` tienen tests unitarios. La lectura en sí depende del modelo: **pruébenla con documentos reales** (DNI, certificados, EMO y SCTR de verdad) antes de mostrarla a clientes, y ajusten las instrucciones en `src/lib/ia/esquema.ts` si alguna fecha sale mal.

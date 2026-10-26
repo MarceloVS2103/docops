@@ -7,8 +7,9 @@ import { EstadoBadge } from "@/components/estado";
 import { EditarOperarioForm } from "../formularios";
 import { ReprocesarForm, RevisionForm, SubirDocumentoForm } from "./documento-forms";
 
-// Las server actions de esta página llaman a la IA, que puede tardar varios segundos.
-export const maxDuration = 60;
+// Las server actions de esta página llaman a la IA: normalmente unos segundos,
+// pero con reintentos y modelo de respaldo el peor caso pasa de 60 s.
+export const maxDuration = 120;
 
 const ORIGEN: Record<string, string> = {
   documento: "impresa en el documento",

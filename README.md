@@ -54,7 +54,7 @@ Si hay ambas, se usa Gemini, salvo que `IA_PROVEEDOR=claude`. **Sin ninguna clav
 Cómo funciona (`src/lib/ia/`):
 
 1. `esquema.ts` define lo que se le pide a la IA: tipo, titular, n.º de documento, fechas, resultado (p. ej. "NO REGISTRA ANTECEDENTES", "APTO") y confianza, como **JSON con esquema** validado con Zod. Las instrucciones son las mismas para los dos proveedores.
-2. `gemini.ts` (por defecto `gemini-3.8-flash`, se cambia con `GEMINI_MODEL`) y `claude.ts` (por defecto `claude-opus-5-5`, con `ANTHROPIC_MODEL`; activa el *fallback* del servidor si el modelo rechaza el documento) envían el PDF o la imagen. `extraer.ts` elige el proveedor.
+2. `gemini.ts` (por defecto `gemini-3.6-flash`, con `gemini-3.5-flash-lite` de respaldo si está saturado; se cambian con `GEMINI_MODEL` y `GEMINI_MODEL_RESPALDO`) y `claude.ts` (por defecto `claude-opus-5-5`, con `ANTHROPIC_MODEL`; activa el *fallback* del servidor si el modelo rechaza el documento) envían el PDF o la imagen. `extraer.ts` elige el proveedor.
 3. `evaluar.ts` aplica reglas deterministas (sin IA, con tests) y manda el documento a **revisión manual** si está ilegible, si es de otro tipo, si el titular o el DNI no coinciden con el operario, si el resultado es desfavorable o si no se puede determinar el vencimiento.
 4. Vencimiento: se usa la fecha impresa (DNI, SCTR) o *emisión + vigencia del tipo* (antecedentes 90 días, EMO 365). Si hay ambas, gana la más temprana.
 
@@ -66,7 +66,7 @@ Cómo funciona (`src/lib/ia/`):
 |---|---|---|
 | `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` | Para la IA | Lectura automática de documentos (una de las dos basta) |
 | `IA_PROVEEDOR` | No | `gemini` o `claude`; sin ella, el que tenga clave (Gemini primero) |
-| `GEMINI_MODEL` / `ANTHROPIC_MODEL` | No | Modelo de cada proveedor (`gemini-3.8-flash` / `claude-opus-5-5`) |
+| `GEMINI_MODEL` / `ANTHROPIC_MODEL` | No | Modelo de cada proveedor (`gemini-3.6-flash` / `claude-opus-5-5`) |
 | `SESSION_SECRET` | **En producción** | Firma de la cookie de sesión (≥ 32 caracteres aleatorios) |
 | `DATABASE_URL` | En producción | Postgres (Neon o Supabase). Vacío = Postgres embebido local en `./.data/pgdata` |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | No | Archivos en Supabase Storage. Sin ellas: tabla `archivos` si hay `DATABASE_URL`, o disco local `./.data/uploads` |
