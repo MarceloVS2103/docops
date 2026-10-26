@@ -40,34 +40,33 @@ Borra y recrea **solo** las dos empresas demo (no toca empresas registradas por 
 - `SCTR_otro_titular.pdf`: súbelo como SCTR del mismo operario → la IA detecta otro titular y lo deja en revisión manual.
 - `operarios_nueva_campana.csv`: impórtalo en *Operarios → Carga masiva por CSV*.
 
-## Lectura con IA (Claude API)
+## Lectura con IA (Gemini o Claude)
 
-Copia `.env.example` a `.env.local` y completa tu API key de Anthropic (<https://console.anthropic.com>):
-
-```bash
-cp .env.example .env.local
-```
+La app puede leer los documentos con **Gemini** (Google) o con **Claude** (Anthropic). Configura una de las dos claves en `.env.local` (local) o en *Settings → Environment Variables* de Vercel:
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=...      # https://aistudio.google.com/apikey
+ANTHROPIC_API_KEY=...   # https://console.anthropic.com
 ```
 
-Reinicia `npm run dev`. **Sin la key la app funciona igual**, pero cada documento subido queda en "revisión manual" y RRHH completa las fechas a mano. Los documentos del seed traen una lectura de IA precargada (marcada "dato demo"), así el tablero luce completo sin gastar API.
+Si hay ambas, se usa Gemini, salvo que `IA_PROVEEDOR=claude`. **Sin ninguna clave la app funciona igual**, pero cada documento subido queda en "revisión manual" y RRHH completa las fechas a mano. Los documentos del seed traen una lectura de IA precargada (marcada "dato demo"), así el tablero luce completo sin gastar API.
 
 Cómo funciona (`src/lib/ia/`):
 
-1. `extraer.ts` envía el PDF o la imagen a Claude (`claude-opus-5-5` por defecto; se cambia con `ANTHROPIC_MODEL`) y pide **salida estructurada JSON** validada con Zod: tipo, titular, n.º de documento, fechas, resultado (p. ej. "NO REGISTRA ANTECEDENTES", "APTO") y confianza. Activa el *fallback* del servidor (`fallbacks: "default"`): si el modelo rechaza el documento, la API reintenta con otro modelo.
-2. `evaluar.ts` aplica reglas deterministas (sin IA, con tests) y manda el documento a **revisión manual** si está ilegible, si es de otro tipo, si el titular o el DNI no coinciden con el operario, si el resultado es desfavorable o si no se puede determinar el vencimiento.
-3. Vencimiento: se usa la fecha impresa (DNI, SCTR) o *emisión + vigencia del tipo* (antecedentes 90 días, EMO 365). Si hay ambas, gana la más temprana.
+1. `esquema.ts` define lo que se le pide a la IA: tipo, titular, n.º de documento, fechas, resultado (p. ej. "NO REGISTRA ANTECEDENTES", "APTO") y confianza, como **JSON con esquema** validado con Zod. Las instrucciones son las mismas para los dos proveedores.
+2. `gemini.ts` (por defecto `gemini-3.8-flash`, se cambia con `GEMINI_MODEL`) y `claude.ts` (por defecto `claude-opus-5-5`, con `ANTHROPIC_MODEL`; activa el *fallback* del servidor si el modelo rechaza el documento) envían el PDF o la imagen. `extraer.ts` elige el proveedor.
+3. `evaluar.ts` aplica reglas deterministas (sin IA, con tests) y manda el documento a **revisión manual** si está ilegible, si es de otro tipo, si el titular o el DNI no coinciden con el operario, si el resultado es desfavorable o si no se puede determinar el vencimiento.
+4. Vencimiento: se usa la fecha impresa (DNI, SCTR) o *emisión + vigencia del tipo* (antecedentes 90 días, EMO 365). Si hay ambas, gana la más temprana.
 
-Costo aproximado: una llamada por documento subido (unos pocos miles de tokens de entrada por página).
+**Privacidad:** en el plan gratuito de Gemini, Google puede usar el contenido enviado para mejorar sus productos. Sirve para pruebas con documentos ficticios; para documentos reales de clientes usen el plan pago de Gemini o Claude.
 
 ## Variables de entorno
 
 | Variable | Obligatoria | Uso |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Para la IA | Lectura automática de documentos |
-| `ANTHROPIC_MODEL` | No | Modelo de Claude (por defecto `claude-opus-5-5`) |
+| `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` | Para la IA | Lectura automática de documentos (una de las dos basta) |
+| `IA_PROVEEDOR` | No | `gemini` o `claude`; sin ella, el que tenga clave (Gemini primero) |
+| `GEMINI_MODEL` / `ANTHROPIC_MODEL` | No | Modelo de cada proveedor (`gemini-3.8-flash` / `claude-opus-5-5`) |
 | `SESSION_SECRET` | **En producción** | Firma de la cookie de sesión (≥ 32 caracteres aleatorios) |
 | `DATABASE_URL` | En producción | Postgres (Neon o Supabase). Vacío = Postgres embebido local en `./.data/pgdata` |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | No | Archivos en Supabase Storage. Sin ellas: tabla `archivos` si hay `DATABASE_URL`, o disco local `./.data/uploads` |
@@ -123,7 +122,7 @@ DATABASE_URL="$(grep '^DATABASE_URL_UNPOOLED=' .env.vercel | cut -d= -f2- | tr -
 vercel deploy --prod
 ```
 
-`.env.vercel` contiene credenciales: está ignorado por git, no lo compartas. Las migraciones corren solas al arrancar la app (o con `scripts/migrate.ts` usando el mismo prefijo). Para activar la IA en producción, agrega `ANTHROPIC_API_KEY` en *Settings → Environment Variables* y vuelve a desplegar.
+`.env.vercel` contiene credenciales: está ignorado por git, no lo compartas. Las migraciones corren solas al arrancar la app (o con `scripts/migrate.ts` usando el mismo prefijo). Para activar la IA en producción, agrega `GEMINI_API_KEY` (o `ANTHROPIC_API_KEY`) en *Settings → Environment Variables* y vuelve a desplegar.
 
 ### Cuentas para pruebas con participantes
 

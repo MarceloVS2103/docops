@@ -45,9 +45,10 @@ Decisiones tomadas sin preguntar para no frenar la construcción. Cualquiera se 
 
 ## IA
 
-- Modelo por defecto: `claude-opus-5-5`, con `effort: "medium"` y *fallback* de servidor activado (`fallbacks: "default"`), que reintenta con otro modelo si el primero rechaza el documento. Se cambia con `ANTHROPIC_MODEL`.
-- La extracción corre **sincrónica** durante la subida (unos segundos, con el indicador "Leyendo con IA…"). Para cargas masivas convendría una cola o la Batch API (v2).
-- La lectura de la IA sobre documentos reales **no se probó** durante la construcción: no había API key disponible. Está probada la ruta sin key (queda en revisión manual) y las reglas de `evaluar.ts` (tests unitarios). **Antes del demo, prueben con una key real y documentos reales** (DNI, certificados, EMO y SCTR de verdad) y ajusten el prompt en `src/lib/ia/extraer.ts` si alguna fecha sale mal.
+- Dos proveedores intercambiables con el mismo esquema e instrucciones: **Gemini** (`gemini-3.8-flash`, elegido por el equipo para las pruebas con participantes por su plan gratuito) y **Claude** (`claude-opus-5-5`, con `effort: "medium"` y *fallback* de servidor). `IA_PROVEEDOR` fuerza uno; sin ella se usa el que tenga clave, Gemini primero.
+- Plan gratuito de Gemini: Google puede usar el contenido para mejorar sus productos y hay topes de uso por minuto. Aceptable con los PDFs ficticios de la encuesta; **no** para documentos reales de clientes. Si se pasa el tope, el documento queda en revisión manual con un aviso de reintento.
+- La extracción corre **sincrónica** durante la subida (unos segundos, con el indicador "Leyendo con IA…"). Para cargas masivas convendría una cola o una API por lotes (v2).
+- Las reglas de `evaluar.ts` tienen tests unitarios. La lectura en sí depende del modelo: **pruébenla con documentos reales** (DNI, certificados, EMO y SCTR de verdad) antes de mostrarla a clientes, y ajusten las instrucciones en `src/lib/ia/esquema.ts` si alguna fecha sale mal.
 - Los documentos del seed traen una "lectura de IA" sintética marcada con `fuente: "demo"`.
 
 ## Fuera de alcance (tal como pedía el brief)
