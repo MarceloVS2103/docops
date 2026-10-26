@@ -125,6 +125,19 @@ vercel deploy --prod
 
 `.env.vercel` contiene credenciales: está ignorado por git, no lo compartas. Las migraciones corren solas al arrancar la app (o con `scripts/migrate.ts` usando el mismo prefijo). Para activar la IA en producción, agrega `ANTHROPIC_API_KEY` en *Settings → Environment Variables* y vuelve a desplegar.
 
+### Cuentas para pruebas con participantes
+
+Cada participante de las pruebas de usabilidad entra con su propia cuenta (`prueba01@docops.test`, `prueba02@…`). Cada cuenta tiene una copia idéntica de la empresa agro demo, que es lo que asume la encuesta, así nadie pisa los datos de otro. Contra producción, antepón el mismo prefijo `DATABASE_URL=… npx tsx --env-file=.env.vercel` de arriba:
+
+| Comando | Qué hace |
+|---|---|
+| `npx tsx scripts/participantes.ts crear 15` | Crea las cuentas que falten hasta la 15 y guarda las contraseñas en `participantes.local.csv` |
+| `npx tsx scripts/participantes.ts estado` | Operarios y documentos que agregó cada participante |
+| `npx tsx scripts/participantes.ts reset 03` | Deja la cuenta 03 como nueva (misma contraseña); `reset todas` para todas |
+| `npx tsx scripts/participantes.ts clave 03` | Nueva contraseña para la 03 |
+
+`participantes.local.csv` está ignorado por git: es la única copia de las contraseñas, guárdenlo y repártanlo por un canal privado. `npm run seed` no toca estas cuentas.
+
 ### Alternativa: Supabase
 
 Con `DATABASE_URL` de Supabase (Transaction pooler, puerto 6543) y `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + un bucket privado `documentos`, los archivos van a Supabase Storage. Esta ruta no está probada.

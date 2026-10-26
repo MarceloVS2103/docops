@@ -46,3 +46,6 @@ next-env.d.ts
 
 # generados por npm run seed
 /samples
+
+# credenciales de participantes (las genera scripts/participantes.ts)
+/participantes*.csv

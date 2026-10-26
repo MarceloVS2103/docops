@@ -34,10 +34,13 @@ export default function LoginPage() {
           Regístrala
         </Link>
       </p>
-      <div className="mt-5 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-200">
-        <span className="font-medium text-slate-600">Datos demo</span> (tras <code>npm run seed</code>):{" "}
-        <code>rrhh@agro-demo.test</code> / <code>demo1234</code>
-      </div>
+      {/* En producción cada participante usa sus propias credenciales. */}
+      {process.env.NODE_ENV !== "production" && (
+        <div className="mt-5 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-200">
+          <span className="font-medium text-slate-600">Datos demo</span> (tras <code>npm run seed</code>):{" "}
+          <code>rrhh@agro-demo.test</code> / <code>demo1234</code>
+        </div>
+      )}
     </div>
   );
 }
