@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <div className="truncate text-xs text-slate-500 lg:mt-3" title={empresa.nombre}>
             <div className="truncate font-medium text-slate-700">{empresa.nombre}</div>
-            <div className="capitalize">{empresa.sector}</div>
+            <div className="capitalize">{empresa.demo ? "Demo de prueba" : empresa.sector}</div>
           </div>
         </div>
         <Nav esAdmin={sesion.rol === "admin"} />

@@ -21,6 +21,9 @@ export const DIAS_DEMO = 14;
 const MAX_POR_IP_HORA = 10;
 const MAX_TOTAL_HORA = 100;
 
+// Se comparte con agroexportadoras y mineras: nombre genérico, sin sector.
+const NOMBRE_EMPRESA_DEMO = "Empresa Demo S.A.C.";
+
 export class DemoNoDisponible extends Error {}
 
 /** Genera una plantilla nueva y borra las anteriores (las copias no dependen de ella). */
@@ -89,9 +92,9 @@ export async function crearEmpresaDemo(nombreVisitante: string, ip: string | nul
 
     const [{ id: empresaId }] = await q.query<{ id: string }>(
       `insert into empresas (nombre, sector, dias_alerta, fecha_alta, demo_desde, demo_ip)
-       select nombre, sector, dias_alerta, now() - interval '120 days', now(), $2 from empresas where id = $1
+       select $3, sector, dias_alerta, now() - interval '120 days', now(), $2 from empresas where id = $1
        returning id`,
-      [plantilla.id, ip],
+      [plantilla.id, ip, NOMBRE_EMPRESA_DEMO],
     );
     const [{ id: usuarioId }] = await q.query<{ id: string }>(
       `insert into usuarios (empresa_id, nombre, email, password_hash, rol)

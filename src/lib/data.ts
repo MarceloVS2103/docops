@@ -5,6 +5,8 @@ export interface Empresa {
   id: string;
   nombre: string;
   sector: "agroexportadora" | "minera";
+  /** Copia de la demo abierta: se muestra como empresa genérica, sin sector. */
+  demo: boolean;
   dias_alerta: number;
 }
 
@@ -73,7 +75,7 @@ const DOC_COLUMNS = `d.id, d.operario_id, d.tipo_documento_id, d.archivo_nombre,
   d.datos_extraidos_ia, u.nombre as cargado_por_nombre, d.fecha_carga::text as fecha_carga`;
 
 async function empresa(q: Queryable): Promise<Empresa> {
-  const [e] = await q.query<Empresa>("select id, nombre, sector, dias_alerta from empresas");
+  const [e] = await q.query<Empresa>("select id, nombre, sector, dias_alerta, demo_desde is not null as demo from empresas");
   if (!e) throw new Error("Empresa no encontrada");
   return e;
 }
@@ -91,7 +93,7 @@ export function obtenerEmpresa(empresaId: string) {
 /** Como obtenerEmpresa, pero devuelve null si la empresa ya no existe. */
 export function buscarEmpresa(empresaId: string): Promise<Empresa | null> {
   return withTenant(empresaId, async (q) => {
-    const [e] = await q.query<Empresa>("select id, nombre, sector, dias_alerta from empresas");
+    const [e] = await q.query<Empresa>("select id, nombre, sector, dias_alerta, demo_desde is not null as demo from empresas");
     return e ?? null;
   });
 }

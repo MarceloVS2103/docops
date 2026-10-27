@@ -11,7 +11,7 @@ export default function DemoPage() {
     <div className="card p-6">
       <h1 className="text-base font-semibold">Prueba la plataforma</h1>
       <p className="mt-1 text-sm text-slate-600">
-        Entras sin registrarte a una agroexportadora de ejemplo con 48 operarios y sus documentos. Sube archivos,
+        Entras sin registrarte a una empresa de ejemplo con 48 operarios y sus documentos. Sube archivos,
         corrige datos y explora con libertad: cada visita recibe su propia copia y nadie más ve lo que haces.
       </p>
       <form action={accion} className="mt-4 space-y-3">
