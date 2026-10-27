@@ -9,14 +9,15 @@ export type { Sesion };
 
 export { hashPassword };
 
-export async function iniciarSesion(sesion: Sesion) {
-  const token = await firmarSesion(sesion);
+/** `duracionSegundos`: la demo abierta usa una sesión más larga para que el visitante pueda volver a su copia. */
+export async function iniciarSesion(sesion: Sesion, duracionSegundos = SESSION_MAX_AGE) {
+  const token = await firmarSesion(sesion, duracionSegundos);
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_MAX_AGE,
+    maxAge: duracionSegundos,
   });
 }
 

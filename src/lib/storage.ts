@@ -75,6 +75,39 @@ export async function guardarArchivo(empresaId: string, data: Buffer, mime: stri
   }
 }
 
+/**
+ * Copia todos los archivos de una empresa a otra conservando el nombre de cada
+ * archivo (cambia solo el prefijo). Lo usa la demo abierta al copiar la plantilla.
+ */
+export async function copiarArchivosEmpresa(origen: string, destino: string, q: Queryable): Promise<void> {
+  switch (driver()) {
+    case "supabase": {
+      const bucket = supabaseClient().storage.from(BUCKET);
+      const { data, error } = await bucket.list(origen, { limit: 10_000 });
+      if (error) throw new Error(`No se pudieron listar los archivos: ${error.message}`);
+      for (const f of data) {
+        const r = await bucket.copy(`${origen}/${f.name}`, `${destino}/${f.name}`);
+        if (r.error) throw new Error(`No se pudo copiar el archivo: ${r.error.message}`);
+      }
+      return;
+    }
+    case "db":
+      await q.query(
+        `insert into archivos (path, empresa_id, mime, datos)
+         select $2::text || substr(path, 37), $2::uuid, mime, datos from archivos where empresa_id = $1`,
+        [origen, destino],
+      );
+      return;
+    case "local": {
+      const dir = path.join(LOCAL_DIR, origen);
+      await fs.cp(dir, path.join(LOCAL_DIR, destino), { recursive: true }).catch((err: NodeJS.ErrnoException) => {
+        if (err.code !== "ENOENT") throw err;
+      });
+      return;
+    }
+  }
+}
+
 export async function leerArchivo(rel: string): Promise<Buffer> {
   switch (driver()) {
     case "supabase": {

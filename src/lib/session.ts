@@ -29,11 +29,11 @@ function secreto(): Uint8Array {
   return new TextEncoder().encode(s);
 }
 
-export async function firmarSesion(sesion: Sesion): Promise<string> {
+export async function firmarSesion(sesion: Sesion, duracionSegundos = DURACION_SEGUNDOS): Promise<string> {
   return new SignJWT({ ...sesion })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(`${DURACION_SEGUNDOS}s`)
+    .setExpirationTime(`${duracionSegundos}s`)
     .sign(secreto());
 }
 

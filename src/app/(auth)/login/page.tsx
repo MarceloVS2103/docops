@@ -34,6 +34,12 @@ export default function LoginPage() {
           Regístrala
         </Link>
       </p>
+      <p className="mt-2 text-center text-sm text-slate-500">
+        ¿Solo quieres conocerla?{" "}
+        <Link href="/demo" className="font-medium text-marca-600 hover:underline">
+          Prueba la demo sin registrarte
+        </Link>
+      </p>
       {/* En producción cada participante usa sus propias credenciales. */}
       {process.env.NODE_ENV !== "production" && (
         <div className="mt-5 rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-200">

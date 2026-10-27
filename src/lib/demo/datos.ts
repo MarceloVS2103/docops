@@ -1,20 +1,22 @@
 /**
- * Generador de datos demo compartido por `seed.ts` (empresas demo) y
+ * Generador de datos demo compartido por `seed.ts` (empresas demo),
  * `participantes.ts` (una copia de la empresa agro por participante de las
- * pruebas de usabilidad). Las fechas son relativas a HOY y el azar es
+ * pruebas de usabilidad) y la plantilla de la demo abierta (`./index.ts`).
+ * Las fechas son relativas a HOY y el azar es
  * determinista: cada copia de la empresa agro sale idéntica (mismos operarios,
  * DNIs y estados), que es lo que asumen las tareas de la encuesta.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { crearCatalogoEmpresa } from "../src/lib/catalogo";
-import type { Queryable } from "../src/lib/db";
-import { formatearFecha, hoy, sumarDias } from "../src/lib/estado";
-import { guardarArchivo } from "../src/lib/storage";
+import { crearCatalogoEmpresa } from "@/lib/catalogo";
+import type { Queryable } from "@/lib/db";
+import { formatearFecha, hoy, sumarDias } from "@/lib/estado";
+import { guardarArchivo } from "@/lib/storage";
 
 export const PASSWORD_DEMO = "demo1234";
-export const HOY = hoy();
+// Se recalcula en cada crearEmpresa: el cron de la demo corre en un proceso que vive varios días.
+export let HOY = hoy();
 
 // PRNG determinista para que la demo sea reproducible.
 const SEMILLA_INICIAL = 20261022;
@@ -185,7 +187,8 @@ export async function crearEmpresa(
   def: EmpresaDemo,
   usuariosConHash: (UsuarioDemo & { passwordHash: string })[],
   nombreEmpresa = def.nombre,
-): Promise<NuevoIngreso[]> {
+): Promise<{ empresaId: string; nuevos: NuevoIngreso[] }> {
+  HOY = hoy();
   const [{ id: empresaId }] = await q.query<{ id: string }>(
     "insert into empresas (nombre, sector, fecha_alta) values ($1, $2, now() - interval '120 days') returning id",
     [nombreEmpresa, def.sector],
@@ -286,7 +289,7 @@ export async function crearEmpresa(
     }
   }
   console.log(`  ✓ ${nombreEmpresa}: ${def.operarios} operarios, ${docs} documentos`);
-  return nuevos;
+  return { empresaId, nuevos };
 }
 
 /**

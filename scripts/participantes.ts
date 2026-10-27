@@ -18,7 +18,7 @@ import { randomInt } from "node:crypto";
 import { hashPassword } from "../src/lib/hash";
 import { closeDb, withOwner, type Queryable } from "../src/lib/db";
 import { formatearFecha } from "../src/lib/estado";
-import { EMPRESAS, HOY, borrarEmpresasDe, crearEmpresa, reiniciarAleatorio } from "./demo-data";
+import { EMPRESAS, HOY, borrarEmpresasDe, crearEmpresa, reiniciarAleatorio } from "../src/lib/demo/datos";
 
 const ARCHIVO = path.join(process.cwd(), "participantes.local.csv");
 const AGRO = EMPRESAS[0];

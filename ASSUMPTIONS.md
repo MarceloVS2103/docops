@@ -51,6 +51,14 @@ Decisiones tomadas sin preguntar para no frenar la construcción. Cualquiera se 
 - Las reglas de `evaluar.ts` tienen tests unitarios. La lectura en sí depende del modelo: **pruébenla con documentos reales** (DNI, certificados, EMO y SCTR de verdad) antes de mostrarla a clientes, y ajusten las instrucciones en `src/lib/ia/esquema.ts` si alguna fecha sale mal.
 - Los documentos del seed traen una "lectura de IA" sintética marcada con `fuente: "demo"`.
 
+## Demo abierta
+
+- Para las pruebas con clientes potenciales el equipo pidió **acceso sin credenciales**. Quien entra sin sesión llega a `/demo` y recibe su propia copia de la empresa agro demo, aislada por RLS como cualquier empresa. El nombre es opcional y sirve para cruzar la visita con la encuesta.
+- Generar la empresa desde cero tarda más de un minuto con la base remota; por eso cada visita **copia una plantilla con SQL** (unos segundos) y desplaza sus fechas. Un cron diario regenera la plantilla para que las fechas impresas en sus PDFs no se alejen de hoy.
+- Las copias se **borran a los 14 días**, lo mismo que dura la sesión. Si alguien vuelve después, empieza con una copia nueva.
+- Límites contra abuso: 10 copias por IP y 100 en total por hora. El botón es un formulario POST, así que los antivirus de correo que abren los links no crean copias.
+- Las funciones de Vercel corren en São Paulo (`gru1`), la misma región que la base, para que cada consulta no cruce el continente.
+
 ## Fuera de alcance (tal como pedía el brief)
 
 Portal del operario, notificaciones reales (correo/WhatsApp/SMS), facturación y planes, capa internacional (apostillas, visas), reportes exportables e integraciones con ERPs.

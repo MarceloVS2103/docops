@@ -1,4 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "regions": ["gru1"],
+  "crons": [{ "path": "/api/cron/demo", "schedule": "0 10 * * *" }]
 }

@@ -69,6 +69,7 @@ Cómo funciona (`src/lib/ia/`):
 | `GEMINI_MODEL` / `ANTHROPIC_MODEL` | No | Modelo de cada proveedor (`gemini-3.6-flash` / `claude-opus-5-5`) |
 | `SESSION_SECRET` | **En producción** | Firma de la cookie de sesión (≥ 32 caracteres aleatorios) |
 | `DATABASE_URL` | En producción | Postgres (Neon o Supabase). Vacío = Postgres embebido local en `./.data/pgdata` |
+| `CRON_SECRET` | En Vercel | Autoriza el cron diario de la demo abierta (`/api/cron/demo`) |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET` | No | Archivos en Supabase Storage. Sin ellas: tabla `archivos` si hay `DATABASE_URL`, o disco local `./.data/uploads` |
 
 ## Scripts
@@ -76,7 +77,7 @@ Cómo funciona (`src/lib/ia/`):
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo (carga el seed si la base está vacía) |
-| `npm run seed` | Recrea las empresas demo y `./samples/` |
+| `npm run seed` | Recrea las empresas demo, la plantilla de la demo abierta y `./samples/` |
 | `npm test` | Tests de las reglas de estado y de evaluación de la IA |
 | `npm run typecheck` / `npm run lint` | Verificaciones estáticas |
 | `npm run build` / `npm start` | Build y servidor de producción |
@@ -92,12 +93,13 @@ Cómo funciona (`src/lib/ia/`):
 
 ```
 src/
-  app/(auth)/            login y registro de empresa
+  app/(auth)/            login, registro de empresa y demo abierta
   app/(app)/             tablero, alertas, operarios, operario/[id], configuración
   app/actions/           server actions (auth, operarios + CSV, documentos + IA, configuración)
   app/api/documentos/    descarga de archivos con control de empresa
   lib/db/                drivers y migraciones
-  lib/ia/                extracción con Claude + reglas de validación
+  lib/ia/                extracción con Gemini o Claude + reglas de validación
+  lib/demo/              datos demo y copias de la demo abierta
   db/migrations/         esquema SQL + RLS
 scripts/seed.ts          datos demo
 ```
@@ -124,9 +126,25 @@ vercel deploy --prod
 
 `.env.vercel` contiene credenciales: está ignorado por git, no lo compartas. Las migraciones corren solas al arrancar la app (o con `scripts/migrate.ts` usando el mismo prefijo). Para activar la IA en producción, agrega `GEMINI_API_KEY` (o `ANTHROPIC_API_KEY`) en *Settings → Environment Variables* y vuelve a desplegar.
 
+### Demo abierta (sin cuenta)
+
+Quien abre el link sin sesión llega a `/demo`: escribe su nombre (opcional), pulsa "Entrar a la demo" y recibe en un par de segundos su propia copia de la empresa agro demo, que es lo que asume la encuesta. Nadie ve lo que hace otro y la sesión dura 14 días en ese navegador.
+
+- **Cómo funciona:** cada visita copia con SQL una empresa *plantilla* sin usuarios con clave (`src/lib/demo`) y desplaza las fechas los días que pasaron desde que se generó, así los estados siempre son los de hoy.
+- **Mantenimiento:** un cron diario de Vercel (`/api/cron/demo`, 05:00 hora de Lima) borra las copias de más de 14 días y regenera la plantilla. Requiere `CRON_SECRET` en las variables del proyecto.
+- **Abuso:** máximo 10 copias por IP y 100 en total por hora.
+
+| Comando | Qué hace |
+|---|---|
+| `npx tsx scripts/demo.ts estado` | Cada visita: cuándo entró, el nombre que puso y qué subió |
+| `npx tsx scripts/demo.ts plantilla` | Regenera la plantilla a mano |
+| `npx tsx scripts/demo.ts limpiar` | Borra las copias de más de 14 días |
+
+Contra producción, antepón el mismo prefijo `DATABASE_URL=… npx tsx --env-file=.env.vercel` de arriba.
+
 ### Cuentas para pruebas con participantes
 
-Cada participante de las pruebas de usabilidad entra con su propia cuenta (`prueba01@docops.test`, `prueba02@…`). Cada cuenta tiene una copia idéntica de la empresa agro demo, que es lo que asume la encuesta, así nadie pisa los datos de otro. Contra producción, antepón el mismo prefijo `DATABASE_URL=… npx tsx --env-file=.env.vercel` de arriba:
+Siguen funcionando, por si alguna prueba necesita cuentas fijas. Cada participante de las pruebas de usabilidad entra con su propia cuenta (`prueba01@docops.test`, `prueba02@…`). Cada cuenta tiene una copia idéntica de la empresa agro demo, que es lo que asume la encuesta, así nadie pisa los datos de otro. Contra producción, antepón el mismo prefijo `DATABASE_URL=… npx tsx --env-file=.env.vercel` de arriba:
 
 | Comando | Qué hace |
 |---|---|
