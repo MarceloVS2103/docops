@@ -44,7 +44,7 @@ export default async function OperarioPage({ params }: { params: Promise<{ id: s
         </div>
         <div
           className={`rounded-lg px-3 py-2 text-sm font-medium ring-1 ${
-            fila.apto ? "bg-emerald-50 text-emerald-800 ring-emerald-200" : "bg-red-50 text-red-800 ring-red-200"
+            fila.apto ? "bg-green-100 text-green-800 ring-green-300" : "bg-red-100 text-red-800 ring-red-300"
           }`}
         >
           {fila.apto ? "✓ Apto: documentación obligatoria al día" : "✕ No apto: falta o venció documentación obligatoria"}

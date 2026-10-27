@@ -75,7 +75,7 @@ export default async function TableroPage({ searchParams }: { searchParams: Prom
                 <span className="text-base font-normal text-slate-400"> / {resumen.operarios}</span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-emerald-500" style={{ width: `${pctAptos}%` }} />
+                <div className="h-full rounded-full bg-green-600" style={{ width: `${pctAptos}%` }} />
               </div>
               <div className="mt-1 text-xs text-slate-500">{pctAptos}% con documentación obligatoria al día</div>
             </Link>

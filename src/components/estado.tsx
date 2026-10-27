@@ -2,21 +2,21 @@ import { describirDias, ESTADO_LABEL, type Estado } from "@/lib/estado";
 
 export const ESTILO_ESTADO: Record<Estado, { celda: string; badge: string; punto: string; icono: string }> = {
   vigente: {
-    celda: "bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
-    badge: "bg-emerald-100 text-emerald-800 ring-emerald-200",
-    punto: "bg-emerald-500",
+    celda: "bg-green-100 text-green-800 hover:bg-green-200",
+    badge: "bg-green-200 text-green-900 ring-green-300",
+    punto: "bg-green-600",
     icono: "✓",
   },
   por_vencer: {
-    celda: "bg-amber-50 text-amber-900 hover:bg-amber-100",
-    badge: "bg-amber-100 text-amber-900 ring-amber-200",
-    punto: "bg-amber-500",
+    celda: "bg-orange-100 text-orange-900 hover:bg-orange-200",
+    badge: "bg-orange-200 text-orange-900 ring-orange-300",
+    punto: "bg-orange-500",
     icono: "!",
   },
   vencido: {
-    celda: "bg-red-100 text-red-800 font-semibold hover:bg-red-200",
-    badge: "bg-red-100 text-red-800 ring-red-200",
-    punto: "bg-red-500",
+    celda: "bg-red-200 text-red-900 font-semibold hover:bg-red-300",
+    badge: "bg-red-200 text-red-900 ring-red-300",
+    punto: "bg-red-600",
     icono: "✕",
   },
   pendiente: {

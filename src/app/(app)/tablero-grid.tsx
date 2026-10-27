@@ -183,7 +183,7 @@ export function TableroGrid({
                 })}
                 <td className="border-b border-slate-100 px-3 text-center">
                   {f.apto ? (
-                    <span className="text-xs font-semibold text-emerald-700">Sí</span>
+                    <span className="text-xs font-semibold text-green-700">Sí</span>
                   ) : (
                     <span className="text-xs font-semibold text-red-700">No</span>
                   )}
