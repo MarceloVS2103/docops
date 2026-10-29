@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
   // Las migraciones se leen del disco al arrancar; deben viajar en el bundle de Vercel.
   outputFileTracingIncludes: { "/**": ["./src/db/migrations/**"] },
   experimental: {
-    serverActions: { bodySizeLimit: "12mb" },
+    // allowedOrigins: GitHub Codespaces sirve la app desde *.app.github.dev.
+    serverActions: { bodySizeLimit: "12mb", allowedOrigins: ["*.app.github.dev"] },
   },
 };
 
